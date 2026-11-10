@@ -26,21 +26,25 @@ public class Health : MonoBehaviour
             return false;
         }
 
-        invulnerableUntil = Time.time + iFrames;
-
         if (shielded)
         {
             shielded = false;
+            invulnerableUntil = Time.time + iFrames;
             return false;
         }
 
-        current -= amount;
+        invulnerableUntil = Time.time + iFrames;
 
-        GameManager.Instance.UpdateUI();
+        current = Mathf.Max(0, current - amount);
 
-        if (current <= 0)
+        if (GameManager.Instance != null)
         {
-            GameManager.Instance.PlayerDied();
+            GameManager.Instance.UpdateUI();
+
+            if (current <= 0)
+            {
+                GameManager.Instance.PlayerDied();
+            }
         }
 
         return true;
@@ -49,9 +53,22 @@ public class Health : MonoBehaviour
     public void Restore(float protection)
     {
         current = max;
-
         invulnerableUntil = Time.time + protection;
 
-        GameManager.Instance.UpdateUI();
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.UpdateUI();
+        }
+    }
+
+    public void RestoreOne(float protection)
+    {
+        current = Mathf.Min(current + 1, max);
+        invulnerableUntil = Time.time + protection;
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.UpdateUI();
+        }
     }
 }

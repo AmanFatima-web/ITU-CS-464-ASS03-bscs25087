@@ -1,5 +1,4 @@
 
-using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
@@ -10,23 +9,17 @@ public class GameManager : MonoBehaviour
 
     [Header("Game Settings")]
     [SerializeField] int targetScore = 8;
-    [SerializeField] int lives = 3;
 
     [Header("Timer")]
-    [SerializeField] bool useTimer = true;
+    [SerializeField] bool useTimer = false;
     [SerializeField] float timeLimit = 60f;
     [SerializeField] TMP_Text timerText;
 
     [Header("Health System")]
-    [SerializeField] bool useHealthSystem = false;
     [SerializeField] Health player;
-    [SerializeField] Transform respawnPoint;
-    [SerializeField] float respawnDelay = 0.6f;
-    [SerializeField] float spawnProtection = 1.5f;
 
     [Header("UI")]
     [SerializeField] TMP_Text scoreText;
-    [SerializeField] TMP_Text livesText;
     [SerializeField] TMP_Text healthText;
 
     [SerializeField] GameObject winPanel;
@@ -38,6 +31,12 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         Instance = this;
     }
 
@@ -46,6 +45,11 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
 
         timeRemaining = timeLimit;
+
+        if (player == null)
+        {
+            player = FindFirstObjectByType<Health>();
+        }
 
         if (winPanel != null)
             winPanel.SetActive(false);
@@ -72,7 +76,10 @@ public class GameManager : MonoBehaviour
         }
 
         if (timerText != null)
-            timerText.text = $"Time: {Mathf.CeilToInt(timeRemaining)}";
+        {
+            timerText.text =
+                $"Time: {Mathf.CeilToInt(timeRemaining)}";
+        }
     }
 
     public void AddScore(int amount)
@@ -81,64 +88,53 @@ public class GameManager : MonoBehaviour
             return;
 
         score += amount;
-        UpdateUI();
 
-        if (score >= targetScore)
-            Win();
+        UpdateUI();
     }
 
     public void ReachGoal()
     {
+        if (gameEnded)
+            return;
+
         if (score >= targetScore)
+        {
             Win();
+        }
+        else
+        {
+            Debug.Log("Collect all coins first!");
+        }
     }
 
     public void UpdateUI()
     {
         if (scoreText != null)
-            scoreText.text = $"Score: {score} / {targetScore}";
+        {
+            scoreText.text =
+                $"Score: {score} / {targetScore}";
+        }
 
         if (timerText != null)
-            timerText.text = $"Time: {Mathf.CeilToInt(timeRemaining)}";
-
-        if (livesText != null)
-            livesText.text = $"Lives: {lives}";
+        {
+            timerText.text =
+                $"Time: {Mathf.CeilToInt(timeRemaining)}";
+        }
 
         if (healthText != null && player != null)
-            healthText.text = $"Health: {Mathf.Max(player.Current, 0)} / {player.Max}";
+        {
+            healthText.text =
+                $"Health: {Mathf.Max(player.Current, 0)} / {player.Max}";
+        }
     }
 
     public void PlayerDied()
     {
-        if (!useHealthSystem || gameEnded)
+        if (gameEnded)
             return;
 
-        lives--;
         UpdateUI();
-
-        if (lives <= 0)
-        {
-            Lose();
-        }
-        else
-        {
-            StartCoroutine(Respawn());
-        }
-    }
-
-    IEnumerator Respawn()
-    {
-        yield return new WaitForSeconds(respawnDelay);
-
-        if (player == null || respawnPoint == null)
-            yield break;
-
-        Rigidbody body = player.GetComponent<Rigidbody>();
-
-        body.position = respawnPoint.position;
-        body.linearVelocity = Vector3.zero;
-
-        player.Restore(spawnProtection);
+        Lose();
     }
 
     void Win()
