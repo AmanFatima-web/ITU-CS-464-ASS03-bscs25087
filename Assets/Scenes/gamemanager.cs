@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Game Settings")]
     [SerializeField] int targetScore = 8;
+    [SerializeField] string levelName = "Level 1";
 
     [Header("Timer")]
     [SerializeField] bool useTimer = false;
@@ -22,7 +23,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] TMP_Text scoreText;
     [SerializeField] TMP_Text healthText;
 
+    [Header("Win Panel")]
     [SerializeField] GameObject winPanel;
+    [SerializeField] TMP_Text levelCompleteText;
+
+    [Header("Lose Panel")]
     [SerializeField] GameObject losePanel;
 
     int score;
@@ -57,6 +62,12 @@ public class GameManager : MonoBehaviour
         if (losePanel != null)
             losePanel.SetActive(false);
 
+        if (levelCompleteText != null)
+        {
+            levelCompleteText.text =
+                levelName + " Completed!";
+        }
+
         UpdateUI();
     }
 
@@ -75,13 +86,10 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (timerText != null)
-        {
-            timerText.text =
-                $"Time: {Mathf.CeilToInt(timeRemaining)}";
-        }
+        UpdateUI();
     }
 
+    // COIN COLLECTION
     public void AddScore(int amount)
     {
         if (gameEnded)
@@ -90,23 +98,14 @@ public class GameManager : MonoBehaviour
         score += amount;
 
         UpdateUI();
-    }
-
-    public void ReachGoal()
-    {
-        if (gameEnded)
-            return;
 
         if (score >= targetScore)
         {
             Win();
         }
-        else
-        {
-            Debug.Log("Collect all coins first!");
-        }
     }
 
+    // UPDATE UI
     public void UpdateUI()
     {
         if (scoreText != null)
@@ -128,6 +127,20 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // HIDE GAME UI
+    void HideGameUI()
+    {
+        if (scoreText != null)
+            scoreText.gameObject.SetActive(false);
+
+        if (healthText != null)
+            healthText.gameObject.SetActive(false);
+
+        if (timerText != null)
+            timerText.gameObject.SetActive(false);
+    }
+
+    // PLAYER DIED
     public void PlayerDied()
     {
         if (gameEnded)
@@ -137,6 +150,7 @@ public class GameManager : MonoBehaviour
         Lose();
     }
 
+    // WIN PANEL
     void Win()
     {
         if (gameEnded)
@@ -144,12 +158,27 @@ public class GameManager : MonoBehaviour
 
         gameEnded = true;
 
+        HideGameUI();
+
         if (winPanel != null)
+        {
             winPanel.SetActive(true);
+        }
+        else
+        {
+            Debug.LogError("Win Panel is not assigned in Inspector!");
+        }
+
+        if (levelCompleteText != null)
+        {
+            levelCompleteText.text =
+                levelName + " Completed!";
+        }
 
         Time.timeScale = 0f;
     }
 
+    // LOSE PANEL
     void Lose()
     {
         if (gameEnded)
@@ -157,12 +186,21 @@ public class GameManager : MonoBehaviour
 
         gameEnded = true;
 
+        HideGameUI();
+
         if (losePanel != null)
+        {
             losePanel.SetActive(true);
+        }
+        else
+        {
+            Debug.LogError("Lose Panel is not assigned in Inspector!");
+        }
 
         Time.timeScale = 0f;
     }
 
+    // RESTART
     public void Restart()
     {
         Time.timeScale = 1f;
@@ -172,12 +210,21 @@ public class GameManager : MonoBehaviour
         );
     }
 
+    // NEXT LEVEL
     public void NextLevel()
     {
         Time.timeScale = 1f;
 
-        SceneManager.LoadScene(
-            SceneManager.GetActiveScene().buildIndex + 1
-        );
+        int nextSceneIndex =
+            SceneManager.GetActiveScene().buildIndex + 1;
+
+        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+        {
+            SceneManager.LoadScene(nextSceneIndex);
+        }
+        else
+        {
+            Debug.Log("All Levels Completed!");
+        }
     }
 }
