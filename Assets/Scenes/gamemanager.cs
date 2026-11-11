@@ -12,8 +12,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] string levelName = "Level 1";
 
     [Header("Timer")]
-    [SerializeField] bool useTimer = false;
-    [SerializeField] float timeLimit = 60f;
+    [SerializeField] bool useTimer = true;
+    [SerializeField] float timeLimit = 120f;
     [SerializeField] TMP_Text timerText;
 
     [Header("Health System")]

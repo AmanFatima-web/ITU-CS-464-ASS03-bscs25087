@@ -6,6 +6,9 @@ public class Health : MonoBehaviour
     [SerializeField] int max = 3;
     [SerializeField] float iFrames = 1f;
 
+    [Header("Heart Rotation")]
+    [SerializeField] float rotationSpeed = 90f;
+
     public bool shielded;
 
     int current;
@@ -19,12 +22,19 @@ public class Health : MonoBehaviour
         current = max;
     }
 
+    void Update()
+    {
+        transform.Rotate(
+            0f,
+            rotationSpeed * Time.deltaTime,
+            0f
+        );
+    }
+
     public bool TakeDamage(int amount)
     {
         if (current <= 0 || Time.time < invulnerableUntil)
-        {
             return false;
-        }
 
         if (shielded)
         {
@@ -34,7 +44,6 @@ public class Health : MonoBehaviour
         }
 
         invulnerableUntil = Time.time + iFrames;
-
         current = Mathf.Max(0, current - amount);
 
         if (GameManager.Instance != null)
@@ -42,9 +51,7 @@ public class Health : MonoBehaviour
             GameManager.Instance.UpdateUI();
 
             if (current <= 0)
-            {
                 GameManager.Instance.PlayerDied();
-            }
         }
 
         return true;
@@ -56,9 +63,7 @@ public class Health : MonoBehaviour
         invulnerableUntil = Time.time + protection;
 
         if (GameManager.Instance != null)
-        {
             GameManager.Instance.UpdateUI();
-        }
     }
 
     public void RestoreOne(float protection)
@@ -67,8 +72,6 @@ public class Health : MonoBehaviour
         invulnerableUntil = Time.time + protection;
 
         if (GameManager.Instance != null)
-        {
             GameManager.Instance.UpdateUI();
-        }
     }
 }
