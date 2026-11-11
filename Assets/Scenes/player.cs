@@ -1,6 +1,8 @@
+
 using System.Collections;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] float moveForce = 10f;
@@ -49,5 +51,13 @@ public class PlayerController : MonoBehaviour
 
         speedMultiplier = 1f;
         boost = null;
+    }
+
+    public void Knockback(Vector3 direction, float force)
+    {
+        rb.AddForce(
+            direction.normalized * force,
+            ForceMode.Impulse
+        );
     }
 }

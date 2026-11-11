@@ -1,2 +1,13 @@
 fileFormatVersion: 2
 guid: 058b149d245d7234eb12b3af03c301d8
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - spikeMaterial: {fileID: 2100000, guid: 524598bde666cc7478586b65297fab95, type: 2}
+  - warning: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
